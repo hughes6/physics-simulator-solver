@@ -1,53 +1,183 @@
 # Physics Simulator
 
-A simple physics simulator in C++ using Euler and Runge-Kutta 4 (RK4) integration methods.
+A C++ physics simulation engine for modeling point-mass motion under external forces, gravity, and linear drag. The simulator supports both Euler and Runge-Kutta 4 (RK4) numerical integration methods and includes automated testing and visualization tools.
+
+---
+
+## Features
+
+* Euler integration
+* Runge-Kutta 4 (RK4) integration
+* Constant force and acceleration inputs
+* Gravity simulation
+* Linear air resistance (drag)
+* Automated test suite
+* Python-based plotting and validation tools
+
+---
 
 ## Compilation
 
+```bash
 g++ main.cpp -o main
+```
 
-## Usage
+---
 
+## Running the Simulator
+
+```bash
 ./main
+```
 
-### Default behavior
-Configure integration method in main on line 20:   solver.init_integrate('r');
-Set file name in main on line 23:   solver.update_filename("test.txt");
+### Configuration
 
-Pass in vector<double> of initial states to solver as parameter 1
-[0] [1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17]
- m  dt len   ax  ay  az  vx  vy  vz  0   0    0    x    y    z    0    0    0v
-len is simulation length, 0's are just temporary state(t+1) for solver
+The integration method and output filename are configured in `main.cpp`.
 
-Pass in vector<double> of force/accelerations to solver as parameter 2
-[0] [1] [2] [3] [4] [5]
-fx  fy  fz  ax  ay  az
-these are constant forces, pass in az = -32.174 for gravity on
+```cpp
+solver.init_integrate('r');      // 'e' = Euler, 'r' = RK4
+solver.update_filename("test.txt");
+```
 
-Pass in double of air resistance coefficient (linear) to solver as parameter 3
+---
 
-Built with testing functionality for testing functions
+## Initial State Vector
 
-### Test cases
-Run tester with EngineTester t; and t.run() 
-then run python test.py to test cases 1-6, seen in engine tester class
+Parameter 1 is a `std::vector<double>` containing the simulation state.
 
-Inputs in python tester - populate: set to true to generate files
-                        - test: set to true to run tests
-                        - remove: set to true to deleta files after
+| Index | Description               |
+| ----- | ------------------------- |
+| 0     | Mass (m)                  |
+| 1     | Time Step (dt)            |
+| 2     | Simulation Length         |
+| 3-5   | Acceleration (ax, ay, az) |
+| 6-8   | Velocity (vx, vy, vz)     |
+| 9-11  | Temporary Solver State    |
+| 12-14 | Position (x, y, z)        |
+| 15-17 | Temporary Solver State    |
 
-## Graphing & Testing
+Example:
 
-After simulation, you can visualize the results or validate the solver:
+```cpp
+std::vector<double> state(18);
+```
 
-python plot.py      (requires matplotlib, numpy)
+**Note:** Temporary state values are used internally by the solver and should generally be initialized to zero.
 
-Inputs in python plotter - filename: set to name of file output to plot
-                         - save: set to true to save the plots to current dir
-                         - combined: set to true to generate combined plot
-                         - separate: set to true to generate separate plots
-                         - separate and combined: set to true to generate both plots
+---
 
-## Notes
-- The simulation solves Newton's second law for a point mass under constant forces, drag, and gravity.
-- Output columns: x y z vx vy vz ax ay az at each time step.
+## Force Vector
+
+Parameter 2 is a `std::vector<double>` describing applied forces and accelerations.
+
+| Index | Description         |
+| ----- | ------------------- |
+| 0     | Force X (fx)        |
+| 1     | Force Y (fy)        |
+| 2     | Force Z (fz)        |
+| 3     | Acceleration X (ax) |
+| 4     | Acceleration Y (ay) |
+| 5     | Acceleration Z (az) |
+
+Example gravity configuration:
+
+```cpp
+forces[5] = -32.174;
+```
+
+This applies Earth's gravitational acceleration in ft/s² along the Z-axis.
+
+---
+
+## Drag Coefficient
+
+Parameter 3 is a `double` representing the linear air resistance coefficient.
+
+```cpp
+double drag_coeff = 0.05;
+```
+
+Higher values produce stronger damping effects on velocity.
+
+---
+
+## Testing
+
+The project includes a built-in testing framework.
+
+```cpp
+EngineTester tester;
+tester.run();
+```
+
+After generating test outputs, execute:
+
+```bash
+python test.py
+```
+
+### Python Test Configuration
+
+Inside `test.py`:
+
+| Variable | Purpose                              |
+| -------- | ------------------------------------ |
+| populate | Generate test output files           |
+| test     | Execute validation tests             |
+| remove   | Delete generated files after testing |
+
+---
+
+## Visualization
+
+Simulation output can be visualized using the included plotting utility.
+
+```bash
+python plot.py
+```
+
+### Requirements
+
+```bash
+pip install matplotlib numpy
+```
+
+### Plot Configuration
+
+Inside `plot.py`:
+
+| Variable | Purpose                   |
+| -------- | ------------------------- |
+| filename | Simulation output file    |
+| save     | Save generated figures    |
+| combined | Generate combined plots   |
+| separate | Generate individual plots |
+
+---
+
+## Output Format
+
+Each output row contains:
+
+```text
+x y z vx vy vz ax ay az
+```
+
+representing position, velocity, and acceleration at each simulation time step.
+
+---
+
+## Physics Model
+
+The simulator solves Newton's Second Law:
+
+F = ma
+
+and supports:
+
+* Constant external forces
+* Gravity
+* Linear drag
+* Numerical integration using Euler or RK4 methods
+
+This project is intended for learning numerical methods, physics simulation, and basic engine development concepts.
